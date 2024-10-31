@@ -1,6 +1,6 @@
 //Modify this file to change what commands output to your statusbar, and recompile using the make command.
 static const Block blocks[] = {
-	/*Icon*/	/*Command*/		/*Update Interval*/	/*Update Signal*/
+	/*Icon*/	/*Command*/		              /*Update Interval*/	/*Update Signal*/
 	{"", "/home/nico/.config/scrips/name.sh",	          0,		1},
 	{"", "/home/nico/.config/scrips/ip.sh",	            300,		2},
 	{"", "/home/nico/.config/scrips/display.sh",	    120,		3},
