@@ -16,25 +16,24 @@ static const char col_gray1[]       = "#222222";
 static const char col_gray2[]       = "#444444";
 static const char col_gray3[]       = "#bbbbbb";
 static const char col_gray4[]       = "#eeeeee";
-static const char col_cyan[]        = "#005577";
-static const char col_yellow[]      = "#ffff00";
+static const char col_cyan[]        = "#267365";
+static const char col_yellow[]      = "#fce630";
 static const char col_black[]       = "#000000";
 static const char col_gray[]        = "#222222";
 static const char col_white[]       = "#ffffff";
-static const char col_turkey[]      = "#267365";
 static const char col_dark_yellow[] = "#F2CB05";
-static const char col_orange[]      = "#F29F05";
-static const char col_dark_orange[] = "#F28705";
+static const char col_orange[]      = "#F47531";
 static const char col_red[]         = "#F23030";
+static const char col_violet[]      = "#D8215E";
 
 static const char *colors[][3]      = {
-	/*					fg         bg          border   */
-	[SchemeNorm] =	 { col_dark_yellow, col_gray,  col_red },
-	[SchemeSel]  =	 { col_white, col_dark_orange,   col_turkey },
-	[SchemeWarn] =	 { col_black, col_yellow, col_red },
-	[SchemeUrgent]=	 { col_white, col_red,    col_red },
-	[Icon1]=	 { col_orange, col_gray,    col_white },
-	[Icon2]=	 { col_white, col_dark_orange,    col_white },
+	/*               fg                bg          border   */
+	[SchemeNorm]  = { col_dark_yellow, col_gray,   col_red },
+	[SchemeSel]   = { col_white,       col_orange, col_cyan },
+	[SchemeWarn]  = { col_black,       col_yellow, col_red },
+	[SchemeUrgent]= { col_white,       col_violet, col_red },
+	[Icon1]       = { col_yellow,      col_gray,   col_white },
+	[Icon2]       = { col_white,       col_orange, col_white },
 };
 
 /* tagging */
@@ -51,7 +50,7 @@ static const Rule rules[] = {
 };
 
 /* layout(s) */
-static const float mfact     = 0.55; /* factor of master area size [0.05..0.95] */
+static const float mfact     = 0.5; /* factor of master area size [0.05..0.95] */
 static const int nmaster     = 1;    /* number of clients in master area */
 static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
 static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
@@ -93,7 +92,7 @@ static const Layout layouts[] = {
 
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
-static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_turkey, "-nf", col_white, "-sb", col_dark_orange, "-sf", col_yellow, NULL };
+static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_cyan, "-nf", col_white, "-sb", col_orange, "-sf", col_yellow, NULL };
 static const char *termcmd[]  = { "alacritty", NULL };
 
 static const Key keys[] = {
@@ -105,8 +104,8 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
 	{ MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
 	{ MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
-	{ MODKEY,                       XK_h,      setmfact,       {.f = -0.05} },
-	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
+	{ MODKEY,                       XK_h,      setmfact,       {.f = -0.03} },
+	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.03} },
 	{ MODKEY|ShiftMask,             XK_j,      movestack,      {.i = +1 } },
 	{ MODKEY|ShiftMask,             XK_k,      movestack,      {.i = -1 } },
 	{ MODKEY,                       XK_period, toggleAttachBelow, 				{0} },
