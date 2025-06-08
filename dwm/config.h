@@ -1,7 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 
 /* appearance */
-static const unsigned int borderpx  = 2;        /* border pixel of windows */
+static const unsigned int borderpx  = 3;        /* border pixel of windows */
 static const unsigned int snap      = 16;       /* snap pixel */
 static const unsigned int gappih    = 6;       /* horiz inner gap between windows */
 static const unsigned int gappiv    = 6;       /* vert inner gap between windows */
@@ -10,6 +10,7 @@ static const unsigned int gappov    = 8;       /* vert outer gap between windows
 static       int smartgaps          = 0;        /* 1 means no outer gap when there is only one window */
 static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
+static const int statusbar_offset   = 0;        /* manual statusbar horizontal offset adjustment */
 static const char *fonts[]          = { "monospace:size=14", "3270 Nerd Font:size=14" };
 static const char dmenufont[]       = "monospace:size=14";
 static const char col_gray1[]       = "#222222";
@@ -25,15 +26,49 @@ static const char col_dark_yellow[] = "#F2CB05";
 static const char col_orange[]      = "#F47531";
 static const char col_red[]         = "#F23030";
 static const char col_violet[]      = "#D8215E";
+static const char col_green[]       = "#4CAF50";  /* Medium green */
+static const char col_dark_green[]  = "#2E7D32";  /* Dark green */
+static const char col_light_green[] = "#8BC34A";  /* Light green */
+static const char col_bright_red[]  = "#FF5252";  /* Bright red for alerts */
+static const char col_dark_red[]    = "#C62828";  /* Dark red for critical */
+static const char col_amber[]       = "#FFC107";  /* Amber for warnings */
+static const char col_deep_orange[] = "#FF5722";  /* Deep orange */
+static const char col_blue[]        = "#2196F3";  /* Blue for info */
+static const char col_light_blue[]  = "#03A9F4";  /* Light blue */
+static const char col_indigo[]      = "#3F51B5";  /* Indigo for low states */
+static const char col_purple[]      = "#9C27B0";  /* Purple accent */
+static const char col_teal[]        = "#009688";  /* Teal for network */
+static const char col_bright_green[] = "#66BB6A";  /* Bright green for high/good states */
+static const char col_forest_green[] = "#388E3C";  /* Forest green for battery full */
+static const char col_lime_green[]   = "#9CCC65";  /* Lime green for medium-high states */
+static const char col_yellow_green[] = "#CDDC39";  /* Yellow-green transition */
+static const char col_light_orange[] = "#FFB74D";  /* Light orange for medium states */
+static const char col_coral[]        = "#FF7043";  /* Coral for medium-high alerts */
+static const char col_crimson[]      = "#DC143C";  /* Crimson for high alerts */
+static const char col_navy_blue[]    = "#1565C0";  /* Navy blue for low brightness */
+static const char col_sky_blue[]     = "#42A5F5";  /* Sky blue for medium brightness */
+static const char col_powder_blue[]  = "#81D4FA";  /* Powder blue for high brightness */
 
 static const char *colors[][3]      = {
-	/*               fg                bg          border   */
-	[SchemeNorm]  = { col_dark_yellow, col_gray,   col_red },
-	[SchemeSel]   = { col_white,       col_orange, col_cyan },
-	[SchemeWarn]  = { col_black,       col_yellow, col_red },
-	[SchemeUrgent]= { col_white,       col_violet, col_red },
-	[Icon1]       = { col_yellow,      col_gray,   col_white },
-	[Icon2]       = { col_white,       col_orange, col_white },
+	/*               fg                   bg                border   */
+	[SchemeNorm]  = { col_bright_red,     col_gray,         col_navy_blue },	/*01*/
+	[SchemeSel]   = { col_white,       	  col_navy_blue,    col_white },	    /*02*/
+	[SchemeWarn]  = { col_black,       	  col_yellow,       col_red },		    /*03*/
+	[SchemeUrgent]= { col_white,       	  col_violet,       col_red },		    /*04*/
+	[Icon1]       = { col_yellow,      	  col_gray,         col_white },  	    /*05*/
+	[Icon2]       = { col_white,       	  col_gray, 	    col_white },  	    /*06*/
+	[Icon3]       = { col_bright_green,   col_gray,  	    col_white },  	    /*07*/
+	[Icon4]       = { col_green,          col_gray,  	    col_white },  	    /*08*/
+	[Icon5]       = { col_lime_green,     col_gray,  	    col_white },  	    /*09*/
+	[NOTWORKING]  = { col_black,      	  col_white,        col_white },  	    /*0A NOT WORKING*/
+	[Icon6]       = { col_yellow_green,   col_gray,  	    col_white },  	    /*0B*/
+	[Icon7]       = { col_amber,          col_gray,  	    col_white },  	    /*0C*/
+	[Icon8]       = { col_light_orange,   col_gray,  	    col_white },  	    /*0D*/
+	[Icon9]       = { col_coral,          col_gray,  	    col_white },  	    /*0E*/
+	[Icon10]      = { col_crimson,        col_gray,  	    col_white },  	    /*0F*/
+	[Icon11]      = { col_navy_blue,      col_gray,  	    col_white },  	    /*10*/
+	[Icon12]      = { col_sky_blue,       col_gray,  	    col_white },  	    /*11*/
+	[Icon13]      = { col_powder_blue,    col_gray,  	    col_white },  	    /*12*/
 };
 
 /* tagging */
@@ -92,7 +127,7 @@ static const Layout layouts[] = {
 
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
-static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_cyan, "-nf", col_white, "-sb", col_orange, "-sf", col_yellow, NULL };
+static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray, "-nf", col_bright_red, "-sb", col_white, "-sf", col_navy_blue, NULL };
 static const char *termcmd[]  = { "alacritty", NULL };
 
 static const Key keys[] = {

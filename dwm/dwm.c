@@ -58,7 +58,7 @@
 
 /* enums */
 enum { CurNormal, CurResize, CurMove, CurLast }; /* cursor */
-enum { SchemeNorm, SchemeSel, SchemeWarn, SchemeUrgent, Icon1, Icon2 }; /* color schemes */
+enum { SchemeNorm, SchemeSel, SchemeWarn, SchemeUrgent, Icon1, Icon2, Icon3, Icon4, Icon5, NOTWORKING, Icon6, Icon7, Icon8, Icon9, Icon10, Icon11, Icon12, Icon13 }; /* color schemes */
 enum { NetSupported, NetWMName, NetWMState, NetWMCheck,
        NetWMFullscreen, NetActiveWindow, NetWMWindowType,
        NetWMWindowTypeDialog, NetClientList, NetLast }; /* EWMH atoms */
@@ -280,6 +280,51 @@ static Window root, wmcheckwin;
 /* compile-time check if all tags fit into an unsigned int bit array. */
 struct NumTags { char limitexceeded[LENGTH(tags) > 31 ? -1 : 1]; };
 
+/* Calculate string length excluding color escape codes (\x01-\x1F) */
+int
+colorstrlen(char *str)
+{
+	int len = 0;
+	for (int i = 0; str[i] != '\0'; i++) {
+		/* Skip color codes (\x01 to \x1F, but exclude \x0A newline) */
+		if (((unsigned char)str[i] >= 0x01 && (unsigned char)str[i] <= 0x1F) && (unsigned char)str[i] != 0x0A) {
+			continue;
+		}
+		len++;
+	}
+	return len;
+}
+
+/* Calculate color-aware text width for statusbar */
+int
+colortextwidth(char *text)
+{
+	char *filtered;
+	int filteredlen = 0;
+	int textlen = strlen(text);
+	int width;
+	
+	/* Allocate buffer for filtered text */
+	filtered = malloc(textlen + 1);
+	if (!filtered)
+		return TEXTW(text); /* fallback to normal calculation */
+	
+	/* Filter out color codes */
+	for (int i = 0; text[i] != '\0'; i++) {
+		if (((unsigned char)text[i] >= 0x01 && (unsigned char)text[i] <= 0x1F) && (unsigned char)text[i] != 0x0A) {
+			continue; /* skip color codes */
+		}
+		filtered[filteredlen++] = text[i];
+	}
+	filtered[filteredlen] = '\0';
+	
+	/* Calculate width of filtered text */
+	width = drw_fontset_getwidth(drw, filtered) + lrpad;
+	
+	free(filtered);
+	return width;
+}
+
 /* function implementations */
 void
 applyrules(Client *c)
@@ -473,7 +518,7 @@ buttonpress(XEvent *e)
 			arg.ui = 1 << i;
 		} else if (ev->x < x + TEXTW(selmon->ltsymbol))
 			click = ClkLtSymbol;
-		else if (ev->x > selmon->ww - (int)TEXTW(stext))
+		else if (ev->x > selmon->ww - (int)colortextwidth(stext) + statusbar_offset)
 			click = ClkStatusText;
 		else
 			click = ClkWinTitle;
@@ -750,13 +795,13 @@ drawbar(Monitor *m)
 	/* draw status first so it can be overdrawn by tags later */
 	if (m == selmon) { /* status is only drawn on selected monitor */
 		drw_setscheme(drw, scheme[SchemeNorm]);
-		tw = TEXTW(stext) - lrpad - 132; /* 2px right padding */
+		tw = colortextwidth(stext) - lrpad + statusbar_offset; /* manual offset adjustment */
 		while (1) {
 			if ((unsigned int)*ts > LENGTH(colors)) { ts++; continue ; }
 			ctmp = *ts;
 			*ts = '\0';
-			drw_text(drw, m->ww - tw + tx, 0, tw - tx, bh, 0, tp, 0);
-			tx += TEXTW(tp) -lrpad;
+			drw_text(drw, m->ww - tw + tx + statusbar_offset, 0, tw - tx, bh, 0, tp, 0);
+			tx += colortextwidth(tp) -lrpad;
 			if (ctmp == '\0') { break; }
 			drw_setscheme(drw, scheme[(unsigned int)(ctmp-1)]);
 			*ts = ctmp;
@@ -2204,10 +2249,6 @@ main(int argc, char *argv[])
 		die("dwm: cannot open display");
 	checkotherwm();
 	setup();
-#ifdef __OpenBSD__
-	if (pledge("stdio rpath proc exec", NULL) == -1)
-		die("pledge");
-#endif /* __OpenBSD__ */
 	scan();
 	run();
 	cleanup();
