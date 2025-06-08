@@ -14,7 +14,7 @@
 #define SIGMINUS		SIGRTMIN
 #endif
 #define LENGTH(X)               (sizeof(X) / sizeof (X[0]))
-#define CMDLENGTH		50
+#define CMDLENGTH		100
 #define MIN( a, b ) ( ( a < b) ? a : b )
 #define STATUSLENGTH (LENGTH(blocks) * CMDLENGTH + 1)
 
@@ -34,7 +34,7 @@ void setupsignals();
 void sighandler(int signum);
 int getstatus(char *str, char *last);
 void statusloop();
-void termhandler();
+void termhandler(int signum);
 void pstdout();
 #ifndef NO_X
 void setroot();
@@ -65,17 +65,18 @@ void getcmd(const Block *block, char *output)
 	if (!cmdf)
 		return;
 	int i = strlen(block->icon);
-	fgets(tempstatus+i, CMDLENGTH-i-delimLen, cmdf);
+	fgets(tempstatus+i, CMDLENGTH-i-strlen(delim), cmdf);
 	i = strlen(tempstatus);
 	//if block and command output are both not empty
 	if (i != 0) {
 		//only chop off newline if one is present at the end
 		i = tempstatus[i-1] == '\n' ? i-1 : i;
 		if (delim[0] != '\0') {
-			strncpy(tempstatus+i, delim, delimLen);
+			strncpy(tempstatus+i, delim, strlen(delim));
+			tempstatus[i+strlen(delim)] = '\0';
 		}
 		else
-			tempstatus[i++] = '\0';
+			tempstatus[i] = '\0';
 	}
 	strcpy(output, tempstatus);
 	pclose(cmdf);
@@ -116,14 +117,39 @@ void setupsignals()
 
 }
 
+// Calculate string length excluding color escape codes (\x01-\x1F)
+int colorstrlen(char *str)
+{
+	int len = 0;
+	for (int i = 0; str[i] != '\0'; i++) {
+		// Skip color codes (\x01 to \x1F, but exclude \x0A newline)
+		if (((unsigned char)str[i] >= 0x01 && (unsigned char)str[i] <= 0x1F) && (unsigned char)str[i] != 0x0A) {
+			continue;
+		}
+		len++;
+	}
+	return len;
+}
+
 int getstatus(char *str, char *last)
 {
-	strcpy(last, str);
-	str[0] = '\0';
-	for (unsigned int i = 0; i < LENGTH(blocks); i++)
-		strcat(str, statusbar[i]);
-	str[strlen(str)-strlen(delim)] = '\0';
-	return strcmp(str, last);//0 if they are the same
+    strcpy(last, str);
+    str[0] = '\0';
+    for (unsigned int i = 0; i < LENGTH(blocks); i++)
+        strcat(str, statusbar[i]);
+    
+    // Remove the trailing delimiter if present
+    int str_len = strlen(str);
+    int delim_len = strlen(delim);
+    
+    if (str_len >= delim_len && delim_len > 0) {
+        // Check if the string ends with the delimiter
+        if (strncmp(str + str_len - delim_len, delim, delim_len) == 0) {
+            str[str_len - delim_len] = '\0';
+        }
+    }
+    
+    return strcmp(str, last);//0 if they are the same
 }
 
 #ifndef NO_X
@@ -185,7 +211,7 @@ void sighandler(int signum)
 	writestatus();
 }
 
-void termhandler()
+void termhandler(int signum)
 {
 	statusContinue = 0;
 }
@@ -203,7 +229,7 @@ int main(int argc, char** argv)
 		return 1;
 #endif
 	delimLen = MIN(delimLen, strlen(delim));
-	delim[delimLen++] = '\0';
+	delim[delimLen] = '\0';
 	signal(SIGTERM, termhandler);
 	signal(SIGINT, termhandler);
 	statusloop();
